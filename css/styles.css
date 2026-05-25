@@ -21,14 +21,12 @@ body {
   position: relative;
   grid-row: 1/2;
   grid-column: 1/7;
-  background-color: aqua;
 }
 
 .tableAlbumsDiv {
   position: relative;
   grid-column: 5/7;
   grid-row: 2/3;
-  background-color: blue;
 }
 
 .carousel {
@@ -58,7 +56,6 @@ body {
 }
 
 .controls {
-  background-color: rgb(126, 126, 66);
 }
 
 /* ---------------- */
