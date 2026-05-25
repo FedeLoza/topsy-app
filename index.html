@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <link rel="stylesheet" href="css/styles.css" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Topsy</title>
+
+    <style></style>
+  </head>
+
+  <script>
+    window.addEventListener("load", () => {
+      document.getElementById("filas").value = "5";
+      document.getElementById("columnas").value = "5";
+      document.getElementById("searchPlace").value = "";
+    });
+  </script>
+
+  <body>
+    <div class="container">
+      <div class="searchDiv">
+        <h1 style="color: azure">
+          Topsy<span style="color: rgb(53, 192, 192)">.Albums</span>
+        </h1>
+        <label for="search">Search </label>
+        <input
+          type="search"
+          name="searchInput"
+          id="searchPlace"
+          placeholder="album|artist name"
+        />
+      </div>
+      <div class="carousel-container">
+        <button class="prev" id="prev">←</button>
+
+        <div class="carousel" id="carousel"></div>
+
+        <button class="next" id="next">→</button>
+      </div>
+
+      <div class="controls">
+        <label>
+          Rows:
+          <span id="valorFilas"></span>
+        </label>
+
+        <input type="range" id="filas" min="1" max="10" value="5" />
+
+        <br />
+
+        <label>
+          Columns:
+          <span id="valorColumnas"></span>
+        </label>
+
+        <input type="range" id="columnas" min="1" max="10" value="5" />
+      </div>
+
+      <script>
+        const filasRange = document.getElementById("filas");
+        const columnasRange = document.getElementById("columnas");
+
+        document.getElementById("valorFilas").textContent = filas.value;
+        document.getElementById("valorColumnas").textContent = columnas.value;
+
+        const valorFilas = document.getElementById("valorFilas");
+        const valorColumnas = document.getElementById("valorColumnas");
+
+        //Real time values
+
+        filasRange.addEventListener("input", () => {
+          valorFilas.textContent = filasRange.value;
+        });
+
+        columnasRange.addEventListener("input", () => {
+          valorColumnas.textContent = columnasRange.value;
+        });
+      </script>
+
+      <div id="gridE"></div>
+
+      <div class="tableAlbumsDiv">
+        <table id="tableAlbums">
+          <ol id="TA_OL"></ol>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      const carousel = document.getElementById("carousel");
+      const searchInput = document.getElementById("searchPlace");
+
+      // ----------------------------
+      // API
+      // ----------------------------
+
+      async function searchAlbum(query) {
+        try {
+          const response = await fetch(
+            `https://corsproxy.io/?https://api.deezer.com/search/album/?q=${encodeURIComponent(query)}`,
+          );
+
+          const data = await response.json();
+
+          return data.data;
+        } catch (error) {
+          console.error(error);
+
+          return [];
+        }
+      }
+
+      // ----------------------------
+      // RENDER
+      // ----------------------------
+      let cont = 1;
+
+      async function loadCarousel(query) {
+        const albums = await searchAlbum(query);
+
+        let html = "";
+
+        albums.forEach((album) => {
+          html += `
+
+          <div
+            class="card"
+            data-id="${cont}"
+            data-album="${album.title}"
+            data-artist="${album.artist.name}"
+            data-img="${album.cover_medium}"
+          >
+
+            <img
+              src="${album.cover_medium}"
+              alt="${album.title}"
+            >
+
+
+
+            <div class="info">
+
+              <div class="title">
+                ${album.title}
+              </div>
+
+              <div class="artist">
+                ${album.artist.name}
+              </div>
+
+            </div>
+
+          </div>
+        `;
+          cont++;
+        });
+
+        carousel.innerHTML = html;
+      }
+
+      // ----------------------------
+      // EVENTO INPUT
+      // ----------------------------
+
+      searchInput.addEventListener("input", (e) => {
+        const query = e.target.value.trim();
+
+        if (query.length > 0) {
+          loadCarousel(query);
+        }
+      });
+
+      // ----------------------------
+      // BOTONES
+      // ----------------------------
+
+      document.getElementById("next").addEventListener("click", () => {
+        carousel.scrollLeft += 400;
+      });
+
+      document.getElementById("prev").addEventListener("click", () => {
+        carousel.scrollLeft -= 400;
+      });
+
+      // ----------------------------
+      // DRAG
+      // ----------------------------
+
+      let isDragging = false;
+
+      let startX;
+
+      let scrollLeft;
+
+      carousel.addEventListener("mousedown", (e) => {
+        isDragging = true;
+
+        carousel.classList.add("dragging");
+
+        startX = e.pageX;
+
+        scrollLeft = carousel.scrollLeft;
+      });
+
+      carousel.addEventListener("mouseleave", () => {
+        isDragging = false;
+
+        carousel.classList.remove("dragging");
+      });
+
+      carousel.addEventListener("mouseup", () => {
+        isDragging = false;
+
+        carousel.classList.remove("dragging");
+      });
+
+      carousel.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+
+        e.preventDefault();
+
+        const x = e.pageX;
+
+        const walk = (x - startX) * 2;
+
+        carousel.scrollLeft = scrollLeft - walk;
+      });
+    </script>
+
+    <script>
+      let albumsMatrix = [];
+
+      let filasGlobal = 0;
+      let columnasGlobal = 0;
+
+      function crearMatriz() {
+        tabAlb_ol.innerHTML = "";
+
+        const filas = parseInt(document.getElementById("filas").value);
+
+        const columnas = parseInt(document.getElementById("columnas").value);
+
+        filasGlobal = filas;
+        columnasGlobal = columnas;
+
+        albumsMatrix = [];
+
+        const contenedor = document.getElementById("gridE");
+
+        contenedor.innerHTML = "";
+
+        // crea las columnas dinámicamente
+        contenedor.style.gridTemplateColumns = `repeat(${columnas}, 1fr)`;
+
+        let contador = 1;
+
+        for (let fila = 0; fila < filas; fila++) {
+          albumsMatrix[fila] = [];
+          for (let columna = 0; columna < columnas; columna++) {
+            const cuadrado = document.createElement("div");
+
+            cuadrado.classList.add("cuadrado");
+
+            cuadrado.textContent = contador++;
+
+            albumsMatrix[fila][columna] = null;
+
+            cuadrado.dataset.fila = fila;
+            cuadrado.dataset.columna = columna;
+
+            contenedor.appendChild(cuadrado);
+          }
+        }
+      }
+
+      document
+        .getElementById("btnCrear")
+        .addEventListener("click", crearMatriz);
+    </script>
+
+    <script>
+      const tabAlb = document.getElementById("tableAlbums");
+      const tabAlb_ol = document.getElementById("TA_OL");
+    </script>
+
+    <script>
+      function insertAlbum() {
+        carousel.addEventListener("click", (e) => {
+          const card = e.target.closest(".card");
+
+          if (!card) return;
+
+          album_title = card.dataset.album;
+          artist_name = card.dataset.artist;
+          album_img = card.dataset.img;
+          data_id = card.dataset.id;
+
+          // BUSCAR PRIMER ESPACIO VACÍO
+          for (let fila = 0; fila < filasGlobal; fila++) {
+            for (let columna = 0; columna < columnasGlobal; columna++) {
+              if (albumsMatrix[fila][columna] === null) {
+                // GUARDAR EN MATRIZ
+                albumsMatrix[fila][columna] = {
+                  id: data_id,
+                  title: album_title,
+                  artist: artist_name,
+                  img: album_img,
+                };
+
+                // BUSCAR CELDA VISUAL
+                const celda = document.querySelector(
+                  `[data-fila="${fila}"][data-columna="${columna}"]`,
+                );
+
+                // INSERTAR IMAGEN
+                celda.innerHTML = `
+                    <img
+                    src="${album_img}"
+                    style="width:100%; height:100%; object-fit:cover;"
+                    >
+                    <button class="btnDeleteAlbum" onclick="removeAlbum(${data_id})">
+                        x
+                    </button>
+                `;
+
+                renderList();
+
+                console.log(albumsMatrix);
+
+                return;
+              }
+            }
+          }
+
+          alert("Matrix full :/");
+        });
+      }
+      insertAlbum();
+
+      function removeAlbum(data_id) {
+        for (let fila = 0; fila < filasGlobal; fila++) {
+          for (let columna = 0; columna < columnasGlobal; columna++) {
+            const album = albumsMatrix[fila][columna];
+
+            if (album && album.id == data_id) {
+              // BORRAR DE MATRIZ
+              albumsMatrix[fila][columna] = null;
+
+              // LIMPIAR CELDA
+              const celda = document.querySelector(
+                `[data-fila="${fila}"][data-columna="${columna}"]`,
+              );
+
+              renderList();
+
+              celda.innerHTML = "";
+
+              console.log(albumsMatrix);
+
+              return;
+            }
+          }
+        }
+        renderList();
+      }
+
+      function renderList() {
+        tabAlb_ol.innerHTML = "";
+
+        for (let fila = 0; fila < filasGlobal; fila++) {
+          for (let columna = 0; columna < columnasGlobal; columna++) {
+            const album = albumsMatrix[fila][columna];
+
+            if (album !== null) {
+              tabAlb_ol.innerHTML += `
+          <li>
+            <strong>${album.title}</strong> - ${album.artist}
+          </li>
+        `;
+            }
+          }
+        }
+      }
+
+      window.addEventListener("load", () => {
+        crearMatriz();
+      });
+
+      filasRange.addEventListener("input", () => {
+        valorFilas.textContent = filasRange.value;
+        crearMatriz();
+      });
+
+      columnasRange.addEventListener("input", () => {
+        valorColumnas.textContent = columnasRange.value;
+        crearMatriz();
+      });
+    </script>
+  </body>
+</html>
