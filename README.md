@@ -1,4 +1,4 @@
-# Topsy
+# Topsy 📀
 
 A music album explorer based on app like Topsters 3 built with vanilla JavaScript and the Deezer API. Deployed in Vercel.
 
