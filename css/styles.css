@@ -366,7 +366,7 @@ button {
 @media (min-width: 1200px) {
   .container {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(7, 1fr);
   }
 
   .controls {
@@ -378,7 +378,8 @@ button {
   }
 
   .tableAlbumsDiv {
-    grid-column: 5/7;
+    grid-column: 6;
+    grid-row: 3;
   }
 
   .searchDiv {
