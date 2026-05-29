@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     }
 
     const response = await fetch(
-      `https://api.deezer.com/search/album?q=${encodeURIComponent(q)}`,
+      `https://ws.audioscrobbler.com/2.0/?method=album.search&album=${encodeURIComponent(q)}&limit=30&api_key=51fe457d86075bc17470845141b0015b&format=json`,
     );
 
     const data = await response.json();
