@@ -77,6 +77,43 @@ body {
 } */
 
 /* ---------------- */
+/* SEARCH STYLES */
+/* ---------------- */
+#searchPlace {
+  width: 100%;
+
+  max-width: 400px;
+
+  padding: 12px 16px;
+
+  background: #1e1e1e;
+
+  color: white;
+
+  border: 1px solid #333;
+
+  border-radius: 12px;
+
+  font-size: 1rem;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+#searchPlace::placeholder {
+  color: #777;
+}
+
+#searchPlace:focus {
+  border-color: #5c9dff;
+
+  box-shadow: 0 0 10px rgba(92, 157, 255, 0.3);
+
+  outline: none;
+}
+
+/* ---------------- */
 /* CARD */
 /* ---------------- */
 
@@ -350,6 +387,10 @@ button {
   .tableAlbumsDiv {
     grid-row: 6;
   }
+
+  .searchDiv {
+    margin-bottom: 1rem;
+  }
 }
 
 /* Tablet */
@@ -357,6 +398,10 @@ button {
   .container {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
+  }
+
+  .searchDiv {
+    margin-bottom: 1rem;
   }
 
   .controls {
@@ -399,6 +444,13 @@ button {
   .controls {
     grid-column: 1;
   }
+  .titleSearch {
+    grid-column: 2;
+  }
+
+  .searchDiv {
+    margin-bottom: 1rem;
+  }
 
   #gridE {
     grid-column: 2;
@@ -407,10 +459,6 @@ button {
   .tableAlbumsDiv {
     grid-column: 3;
     grid-row: 3;
-  }
-
-  .searchDiv {
-    grid-column: 2;
   }
 
   .carousel-container {
